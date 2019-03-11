@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/yunheli/jenkinsspringdemotwo:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/yunheli/jenkinsspringdemotwo:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: jenkinsspringdemotwo
+        chartPath: charts/jenkinsspringdemotwo
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/yunheli/jenkinsspringdemotwo'
+          image.tag: '{{.DIGEST_HEX}}'
